@@ -14,19 +14,21 @@ import wom.transforms.WomBundleMaker.ops._
 
 object WdlDraft2WomExecutableMakers {
   implicit val namespaceWomExecutableMaker: WomExecutableMaker[WdlNamespace] = new WomExecutableMaker[WdlNamespace] {
-    override def toWomExecutable(a: WdlNamespace, inputs: Option[WorkflowJson], ioFunctions: IoFunctionSet): Checked[Executable] = {
+    override def toWomExecutable(a: WdlNamespace, inputs: Option[WorkflowJson], ioFunctions: IoFunctionSet, checkForUnwantedInputs: Boolean): Checked[Executable] = {
       a.toWomBundle flatMap { bundle =>
-        WdlSharedInputParsing.buildWomExecutable(bundle, inputs, ioFunctions)
+        WdlSharedInputParsing.buildWomExecutable(bundle, inputs, ioFunctions, checkForUnwantedInputs)
       }
     }
   }
 
   implicit val namespaceWithWorkflowWomExecutableMaker: WomExecutableMaker[WdlNamespaceWithWorkflow] = new WomExecutableMaker[WdlNamespaceWithWorkflow] {
-    override def toWomExecutable(a: WdlNamespaceWithWorkflow, inputs: Option[WorkflowJson], ioFunctions: IoFunctionSet): Checked[Executable] = namespaceWomExecutableMaker.toWomExecutable(a, inputs, ioFunctions)
+    override def toWomExecutable(a: WdlNamespaceWithWorkflow, inputs: Option[WorkflowJson], ioFunctions: IoFunctionSet, checkForUnwantedInputs: Boolean): Checked[Executable] =
+      namespaceWomExecutableMaker.toWomExecutable(a, inputs, ioFunctions, checkForUnwantedInputs)
   }
 
   implicit val namespaceWithoutWorkflowWomExecutableMaker: WomExecutableMaker[WdlNamespaceWithoutWorkflow] = new WomExecutableMaker[WdlNamespaceWithoutWorkflow] {
-    override def toWomExecutable(a: WdlNamespaceWithoutWorkflow, inputs: Option[WorkflowJson], ioFunctions: IoFunctionSet): Checked[Executable] = namespaceWomExecutableMaker.toWomExecutable(a, inputs, ioFunctions)
+    override def toWomExecutable(a: WdlNamespaceWithoutWorkflow, inputs: Option[WorkflowJson], ioFunctions: IoFunctionSet, checkForUnwantedInputs: Boolean): Checked[Executable] =
+      namespaceWomExecutableMaker.toWomExecutable(a, inputs, ioFunctions, checkForUnwantedInputs)
   }
 
 }

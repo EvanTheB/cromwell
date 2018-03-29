@@ -2,6 +2,14 @@
 
 ## 32 Release Notes
 
+### Input Validation
+Cromwell will now additionally validate that your inputs files do not supply input values which will have no impact on the workflow. Because sometimes this is undesirable, the language factories can be configured to no longer require this (on a per-language-version basis). See the 'Language Factory Config' below for details.
+
+### Language Factory Config
+All language factories can now be configured on a per-language-version basis. To start, all three supported language versions support the following options:
+* `enabled`: Defaults to `true`. Set to `false` to disallow workflows of this language version from being run.
+* `validate-all-inputs`: Defaults to `true` for WDL and `false` for CWL. Specifies whether workflows fail if the inputs JSON (or YAML) file contains values which the workflow did not ask for (and will therefore have no effect).
+
 ### API
 
 * More accurately returns 503 instead of 500 when Cromwell can not respond in a timely manner
