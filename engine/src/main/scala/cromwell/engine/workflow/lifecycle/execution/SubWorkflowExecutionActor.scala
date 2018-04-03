@@ -19,7 +19,7 @@ import cromwell.engine.workflow.lifecycle.execution.stores.ValueStore
 import cromwell.engine.workflow.workflowstore.StartableState
 import cromwell.engine.{EngineIoFunctions, EngineWorkflowDescriptor}
 import cromwell.services.metadata.MetadataService._
-import cromwell.services.metadata._
+import cromwell.services.metadata.{MetadataEvent, _}
 import cromwell.subworkflowstore.SubWorkflowStoreActor._
 import wom.values.WomEvaluatedCallInputs
 
@@ -203,7 +203,8 @@ class SubWorkflowExecutionActor(key: SubWorkflowKey,
     val events = List(
       MetadataEvent(parentWorkflowMetadataKey, MetadataValue(subWorkflowId)),
       MetadataEvent(MetadataKey(subWorkflowId, None, WorkflowMetadataKeys.Name), MetadataValue(key.node.callable.name)),
-      MetadataEvent(MetadataKey(subWorkflowId, None, WorkflowMetadataKeys.ParentWorkflowId), MetadataValue(parentWorkflow.id))
+      MetadataEvent(MetadataKey(subWorkflowId, None, WorkflowMetadataKeys.ParentWorkflowId), MetadataValue(parentWorkflow.id)),
+      MetadataEvent(MetadataKey(subWorkflowId, None, WorkflowMetadataKeys.RootWorkflowId), MetadataValue(parentWorkflow.rootWorkflow.id))
     )
 
     val inputEvents = workflowInputs match {
