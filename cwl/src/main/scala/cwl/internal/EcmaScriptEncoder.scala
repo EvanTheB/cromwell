@@ -105,8 +105,8 @@ class EcmaScriptEncoder(ioFunctionSet: IoFunctionSet) {
       Option("nameroot" -> (File.nameroot(file.value) |> ESPrimitive)),
       Option("nameext" -> (File.nameext(file.value) |> ESPrimitive)),
       file.checksumOption.map("checksum" -> ESPrimitive(_)),
-      // Throw on purpose if we can't get the size - it will be caught later
-      sync(file.withSize(ioFunctionSet)).get.sizeOption.map(Long.box).map("size" -> ESPrimitive(_)),
+      sync(file.withSize(ioFunctionSet)).toOption.flatMap(_.sizeOption).map(Long.box).map("size" -> ESPrimitive(_)),
+      Option("secondaryFiles" -> encodeFileOrDirectories(file.secondaryFiles)),
       file.formatOption.map("format" -> ESPrimitive(_)),
       file.contentsOption.map("contents" -> ESPrimitive(_))
     ).flatten.toMap |> ESObject

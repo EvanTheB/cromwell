@@ -121,7 +121,7 @@ object InputParameter {
               )
               // If there are secondary files to be populated - preload the size so that
               // we don't have to do it again for each secondary file
-              withSize <- sync(womMaybePopulatedFile.withSize(ioFunctionSet)).toErrorOr
+              withSize <- if (secondaryFiles.isDefined) sync(womMaybePopulatedFile.withSize(ioFunctionSet)).toErrorOr else womMaybePopulatedFile.validNel
               loaded = withSize.copy(contentsOption = contentsOption)
               secondaries <- FileParameter.secondaryFiles(
                 loaded,
