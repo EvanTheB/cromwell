@@ -87,9 +87,9 @@ trait BackendSpec extends ScalaFutures with Matchers with Mockito {
             )
         ).orElse(
           resolved.select[OutputPort] flatMap {
-            case known if workflowDescriptor.knownValues.contains(known) => Some(workflowDescriptor.knownValues(known))
+            case known if workflowDescriptor.knownValues.contains(known) => Option(workflowDescriptor.knownValues(known))
             case hasDefault if hasDefault.graphNode.isInstanceOf[OptionalGraphInputNodeWithDefault] =>
-              Some(hasDefault.graphNode.asInstanceOf[OptionalGraphInputNodeWithDefault].default
+              Option(hasDefault.graphNode.asInstanceOf[OptionalGraphInputNodeWithDefault].default
                 .evaluateValue(inputs, NoIoFunctionSet).getOrElse(fail("Can't evaluate input")))
             case _ => None
           }
