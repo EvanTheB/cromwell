@@ -51,6 +51,7 @@ steps:
     source: "#pi"
   out:
   - id: area
+  - id: rSquaredCopy
   run:
     inputs:
     - id: rSquared
@@ -63,6 +64,43 @@ steps:
         glob: stdout.txt
         loadContents: true
         outputEval: $(parseFloat(self[0].contents))
+      type: float
+    - id: rSquaredCopy
+      outputBinding:
+        outputEval: $(inputs.rSquared)
+      type: float
+    class: CommandLineTool
+    requirements:
+    - class: ShellCommandRequirement
+    arguments:
+    - valueFrom: "perl -e 'print $(inputs.rSquared) * $(inputs.pi)'"
+      shellQuote: false
+    stdout: stdout.txt
+- id: twoAgain
+  in:
+  - id: rSquared
+    source: "#two/rSquaredCopy"
+  - id: pi
+    source: "#pi"
+  out:
+  - id: area
+  - id: rSquaredCopy
+  run:
+    inputs:
+    - id: rSquared
+      type: float
+    - id: pi
+      type: float
+    outputs:
+    - id: area
+      outputBinding:
+        glob: stdout.txt
+        loadContents: true
+        outputEval: $(parseFloat(self[0].contents))
+      type: float
+    - id: rSquaredCopy
+      outputBinding:
+        outputEval: $(inputs.rSquared)
       type: float
     class: CommandLineTool
     requirements:
