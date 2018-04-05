@@ -100,7 +100,7 @@ class CallCacheHashingJobActor(jobDescriptor: BackendJobDescriptor,
       stopAndStay(None)
   }
   
-  // Is its own function so it can be overriden in the test
+  // Is its own function so it can be overridden in the test
   private [callcaching] def addFileHash(hashResult: HashResult, data: CallCacheHashingJobActorData) = {
     data.withFileHash(hashResult)
   }
@@ -164,7 +164,7 @@ class CallCacheHashingJobActor(jobDescriptor: BackendJobDescriptor,
     }
 
     val outputExpressionHashResults = jobDescriptor.taskCall.callable.outputs map { output =>
-      HashResult(HashKey("output expression", s"${output.womType.toDisplayString} ${output.name}"), output.expression.sourceString.md5HashValue)
+      HashResult(HashKey("output expression", s"${output.womType.toDisplayString} ${output.name}"), output.expression.cacheString.md5HashValue)
     }
 
     // Build these all together for the final set of initial hashes:

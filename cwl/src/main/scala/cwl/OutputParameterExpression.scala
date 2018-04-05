@@ -13,6 +13,8 @@ case class OutputParameterExpression(parameter: OutputParameter,
 
   override def sourceString = parameter.toString
 
+  override def cacheString: String = parameter.cacheString
+
   private def evaluateOutputBinding(inputValues: Map[String, WomValue],
                                     ioFunctionSet: IoFunctionSet,
                                     secondaryFilesOption: Option[SecondaryFiles],
