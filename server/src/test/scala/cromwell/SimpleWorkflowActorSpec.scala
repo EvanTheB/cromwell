@@ -20,6 +20,7 @@ import org.scalatest.BeforeAndAfter
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
+import scala.language.postfixOps
 
 object SimpleWorkflowActorSpec {
 
@@ -62,7 +63,9 @@ class SimpleWorkflowActorSpec extends CromwellTestKitWordSpec with BeforeAndAfte
         dockerHashActor = system.actorOf(EmptyDockerHashActor.props),
         jobTokenDispenserActor = system.actorOf(JobExecutionTokenDispenserActor.props(serviceRegistry, Rate(100, 1.second))),
         backendSingletonCollection = BackendSingletonCollection(Map("Local" -> None)),
-        serverMode = true),
+        serverMode = true,
+        workflowStoreActor = system.actorOf(Props.empty),
+        heartbeatTtl = 1 day),
       supervisor = supervisor.ref,
       name = s"workflow-actor-$workflowId"
     )

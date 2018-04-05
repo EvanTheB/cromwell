@@ -53,6 +53,10 @@ case class SqlWorkflowStore(sqlDatabase: WorkflowStoreSqlDatabase) extends Workf
     }
   }
 
+  override def writeWorkflowHeartbeat(workflowId: WorkflowId)(implicit ec: ExecutionContext): Future[Unit] = {
+    sqlDatabase.writeWorkflowHeartbeat(workflowId.id.toString)
+  }
+
   /**
     * Adds the requested WorkflowSourceFiles to the store and returns a WorkflowId for each one (in order)
     * for tracking purposes.

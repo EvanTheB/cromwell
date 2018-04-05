@@ -26,6 +26,7 @@ import spray.json._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.language.postfixOps
 import scala.util._
 
 /**
@@ -81,7 +82,8 @@ abstract class SingleWorkflowRunnerActorSpec extends CromwellTestKitWordSpec wit
       dockerHashActor = dockerHashActor,
       jobTokenDispenserActor = jobTokenDispenserActor,
       backendSingletonCollection = BackendSingletonCollection(Map.empty),
-      serverMode = false)
+      serverMode = false,
+      heartbeatTtl = 1 day)
     system.actorOf(Props(new WorkflowManagerActor(params)), "WorkflowManagerActor")
   }
   

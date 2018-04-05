@@ -67,6 +67,11 @@ trait WorkflowStoreSlickDatabase extends WorkflowStoreSqlDatabase {
     runTransaction(action)
   }
 
+  override def writeWorkflowHeartbeat(workflowExecutionUuid: String)(implicit ec: ExecutionContext): Future[Unit] = {
+    val action = dataAccess.heartbeatForWorkflowStoreEntry(workflowExecutionUuid).update(Option(now))
+    runTransaction(action).void
+  }
+
   override def releaseWorkflowStoreEntries(cromwellId: String)(implicit ec: ExecutionContext): Future[Unit] = {
     val action = dataAccess.releaseWorkflowStoreEntries(cromwellId).update((None, None))
     runTransaction(action).void

@@ -29,5 +29,7 @@ trait WorkflowStore {
     */
   def fetchStartableWorkflows(n: Int, cromwellId: String, heartbeatTtl: FiniteDuration)(implicit ec: ExecutionContext): Future[List[WorkflowToStart]]
 
+  def writeWorkflowHeartbeat(workflowId: WorkflowId)(implicit ec: ExecutionContext): Future[Unit]
+
   def remove(id: WorkflowId)(implicit ec: ExecutionContext): Future[Boolean]
 }

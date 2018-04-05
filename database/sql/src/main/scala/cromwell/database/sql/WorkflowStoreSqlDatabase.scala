@@ -59,6 +59,8 @@ ____    __    ____  ______   .______       __  ___  _______  __        ______   
   def fetchStartableWorkflows(limit: Int, cromwellId: String, heartbeatTtl: FiniteDuration)
                              (implicit ec: ExecutionContext): Future[Seq[WorkflowStoreEntry]]
 
+  def writeWorkflowHeartbeat(workflowExecutionUuid: String)(implicit ec: ExecutionContext): Future[Unit]
+
   /**
     * Clears out cromwellId and heartbeatTimestamp for all workflow store entries currently assigned
     * the specified cromwellId.

@@ -31,6 +31,7 @@ object WorkflowStoreActor {
   case object InitializerCommand extends WorkflowStoreActorEngineCommand
   case object WorkDone extends WorkflowStoreActorEngineCommand
   case object AbortAllRunningWorkflowsCommandAndStop extends WorkflowStoreActorEngineCommand
+  case class WriteWorkflowHeartbeatCommand(workflowId: WorkflowId) extends WorkflowStoreActorEngineCommand
 
   sealed trait WorkflowStoreActorSubmitCommand
   final case class SubmitWorkflow(source: WorkflowSourceFilesCollection) extends WorkflowStoreActorSubmitCommand

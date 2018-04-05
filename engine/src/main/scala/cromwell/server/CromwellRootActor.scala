@@ -135,8 +135,19 @@ abstract class CromwellRootActor(gracefulShutdown: Boolean, abortJobsOnTerminate
 
   lazy val workflowManagerActor = context.actorOf(
     WorkflowManagerActor.props(
-      workflowStoreActor, ioActorProxy, serviceRegistryActor, workflowLogCopyRouter, jobStoreActor, subWorkflowStoreActor, callCacheReadActor, callCacheWriteActor,
-      dockerHashActor, jobExecutionTokenDispenserActor, backendSingletonCollection, serverMode),
+      workflowStore = workflowStoreActor,
+      ioActor = ioActorProxy,
+      serviceRegistryActor = serviceRegistryActor,
+      workflowLogCopyRouter = workflowLogCopyRouter,
+      jobStoreActor = jobStoreActor,
+      subWorkflowStoreActor = subWorkflowStoreActor,
+      callCacheReadActor = callCacheReadActor,
+      callCacheWriteActor = callCacheWriteActor,
+      dockerHashActor = dockerHashActor,
+      jobTokenDispenserActor = jobExecutionTokenDispenserActor,
+      backendSingletonCollection = backendSingletonCollection,
+      serverMode = serverMode,
+      heartbeatTtl = heartbeatTtl),
     "WorkflowManagerActor")
 
   if (gracefulShutdown) {

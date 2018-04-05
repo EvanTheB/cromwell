@@ -69,6 +69,11 @@ final case class WorkflowStoreEngineActor private(store: WorkflowStore, serviceR
   }
 
   whenUnhandled {
+    case Event(write: WriteWorkflowHeartbeatCommand, _) =>
+      store.writeWorkflowHeartbeat(write.workflowId) recover {
+        case e => log.error(e, s"Error attempting to write workflow heartbeat for workflow ${write.workflowId}")
+      }
+      stay()
     case Event(ShutdownCommand, _) if abortAllJobsOnTerminate =>
       self ! AbortAllRunningWorkflowsCommandAndStop
       stay()

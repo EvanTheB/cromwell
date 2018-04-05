@@ -51,10 +51,23 @@ object WorkflowManagerActor {
             dockerHashActor: ActorRef,
             jobTokenDispenserActor: ActorRef,
             backendSingletonCollection: BackendSingletonCollection,
-            serverMode: Boolean): Props = {
-    val params = WorkflowManagerActorParams(ConfigFactory.load, workflowStore, ioActor, serviceRegistryActor,
-      workflowLogCopyRouter, jobStoreActor, subWorkflowStoreActor, callCacheReadActor, callCacheWriteActor,
-      dockerHashActor, jobTokenDispenserActor, backendSingletonCollection, serverMode)
+            serverMode: Boolean,
+            heartbeatTtl: FiniteDuration): Props = {
+    val params = WorkflowManagerActorParams(
+      config = ConfigFactory.load,
+      workflowStore = workflowStore,
+      ioActor = ioActor,
+      serviceRegistryActor = serviceRegistryActor,
+      workflowLogCopyRouter = workflowLogCopyRouter,
+      jobStoreActor = jobStoreActor,
+      subWorkflowStoreActor = subWorkflowStoreActor,
+      callCacheReadActor = callCacheReadActor,
+      callCacheWriteActor = callCacheWriteActor,
+      dockerHashActor = dockerHashActor,
+      jobTokenDispenserActor = jobTokenDispenserActor,
+      backendSingletonCollection = backendSingletonCollection,
+      serverMode = serverMode,
+      heartbeatTtl = heartbeatTtl)
     Props(new WorkflowManagerActor(params)).withDispatcher(EngineDispatcher)
   }
 
@@ -99,7 +112,8 @@ case class WorkflowManagerActorParams(config: Config,
                                       dockerHashActor: ActorRef,
                                       jobTokenDispenserActor: ActorRef,
                                       backendSingletonCollection: BackendSingletonCollection,
-                                      serverMode: Boolean)
+                                      serverMode: Boolean,
+                                      heartbeatTtl: FiniteDuration)
 
 class WorkflowManagerActor(params: WorkflowManagerActorParams)
   extends LoggingFSM[WorkflowManagerState, WorkflowManagerData] with WorkflowMetadataHelper {
@@ -261,10 +275,24 @@ class WorkflowManagerActor(params: WorkflowManagerActorParams)
       logger.info(s"$tag Starting workflow UUID($workflowId)")
     }
 
-    val wfProps = WorkflowActor.props(workflowId, workflow.state, workflow.sources, config, params.ioActor, params.serviceRegistryActor,
-      params.workflowLogCopyRouter, params.jobStoreActor, params.subWorkflowStoreActor, params.callCacheReadActor, params.callCacheWriteActor,
-      params.dockerHashActor, params.jobTokenDispenserActor,
-      params.backendSingletonCollection, params.serverMode)
+    val wfProps = WorkflowActor.props(
+      workflowId = workflowId,
+      startMode = workflow.state,
+      workflowSourceFilesCollection = workflow.sources,
+      conf = config,
+      ioActor = params.ioActor,
+      serviceRegistryActor = params.serviceRegistryActor,
+      workflowLogCopyRouter = params.workflowLogCopyRouter,
+      jobStoreActor = params.jobStoreActor,
+      subWorkflowStoreActor = params.subWorkflowStoreActor,
+      callCacheReadActor = params.callCacheReadActor,
+      callCacheWriteActor = params.callCacheWriteActor,
+      dockerHashActor = params.dockerHashActor,
+      jobTokenDispenserActor = params.jobTokenDispenserActor,
+      workflowStoreActor = params.workflowStore,
+      backendSingletonCollection = params.backendSingletonCollection,
+      serverMode = params.serverMode,
+      heartbeatTtl = params.heartbeatTtl)
     val wfActor = context.actorOf(wfProps, name = s"WorkflowActor-$workflowId")
 
     wfActor ! SubscribeTransitionCallBack(self)

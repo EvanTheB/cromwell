@@ -1,6 +1,6 @@
 package cromwell.engine.workflow
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorRef, Props}
 import akka.testkit.{TestActorRef, TestFSMRef, TestProbe}
 import com.typesafe.config.{Config, ConfigFactory}
 import cromwell._
@@ -22,6 +22,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.Eventually
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 class WorkflowActorSpec extends CromwellTestKitWordSpec with WorkflowDescriptorBuilder with BeforeAndAfter with Eventually {
   override implicit val actorSystem = system
@@ -67,7 +68,8 @@ class WorkflowActorSpec extends CromwellTestKitWordSpec with WorkflowDescriptorB
         callCacheReadActor = system.actorOf(EmptyCallCacheReadActor.props),
         callCacheWriteActor = system.actorOf(EmptyCallCacheWriteActor.props),
         dockerHashActor = system.actorOf(EmptyDockerHashActor.props),
-        jobTokenDispenserActor = TestProbe().ref
+        jobTokenDispenserActor = TestProbe().ref,
+        workflowStoreActor = system.actorOf(Props.empty)
       ),
       supervisor = supervisorProbe.ref)
     actor.setState(stateName = state, stateData = WorkflowActorData(Option(currentLifecycleActor.ref), Option(descriptor),
@@ -186,7 +188,25 @@ class MockWorkflowActor(val finalizationProbe: TestProbe,
                         callCacheReadActor: ActorRef,
                         callCacheWriteActor: ActorRef,
                         dockerHashActor: ActorRef,
-                        jobTokenDispenserActor: ActorRef) extends WorkflowActor(workflowId, startState, workflowSources, conf, ioActor, serviceRegistryActor, workflowLogCopyRouter, jobStoreActor, subWorkflowStoreActor, callCacheReadActor, callCacheWriteActor, dockerHashActor, jobTokenDispenserActor, BackendSingletonCollection(Map.empty), serverMode = true) {
+                        jobTokenDispenserActor: ActorRef,
+                        workflowStoreActor: ActorRef) extends WorkflowActor(
+  workflowId = workflowId,
+  initialStartableState = startState,
+  workflowSourceFilesCollection = workflowSources,
+  conf = conf,
+  ioActor = ioActor,
+  serviceRegistryActor = serviceRegistryActor,
+  workflowLogCopyRouter = workflowLogCopyRouter,
+  jobStoreActor = jobStoreActor,
+  subWorkflowStoreActor = subWorkflowStoreActor,
+  callCacheReadActor = callCacheReadActor,
+  callCacheWriteActor = callCacheWriteActor,
+  dockerHashActor = dockerHashActor,
+  jobTokenDispenserActor = jobTokenDispenserActor,
+  backendSingletonCollection = BackendSingletonCollection(Map.empty),
+  workflowStoreActor = workflowStoreActor,
+  serverMode = true,
+  heartbeatTtl = 1 day) {
 
   override def makeFinalizationActor(workflowDescriptor: EngineWorkflowDescriptor, jobExecutionMap: JobExecutionMap, worfklowOutputs: CallOutputs) = finalizationProbe.ref
 }
