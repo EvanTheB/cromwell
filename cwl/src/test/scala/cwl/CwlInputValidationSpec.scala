@@ -87,7 +87,7 @@ class CwlInputValidationSpec extends FlatSpec with Matchers with TableDrivenProp
   lazy val w10OutputPort = getOutputPort(10)
   
   def validate(inputFile: String): Map[GraphNodePort.OutputPort, ResolvedExecutableInput] = {
-    cwlWorkflow.womExecutable(AcceptAllRequirements, Option(inputFile), NoIoFunctionSet, checkForUnwantedInputs = false) match {
+    cwlWorkflow.womExecutable(AcceptAllRequirements, Option(inputFile), NoIoFunctionSet, strictValidation = false) match {
       case Left(errors) => fail(s"Failed to build a wom executable: ${errors.toList.mkString(", ")}")
       case Right(executable) => executable.resolvedExecutableInputs
     }
@@ -179,7 +179,7 @@ class CwlInputValidationSpec extends FlatSpec with Matchers with TableDrivenProp
         w2: hello !
       """.stripMargin
 
-    cwlWorkflow.womExecutable(AcceptAllRequirements, Option(inputFile), NoIoFunctionSet, checkForUnwantedInputs = false) match {
+    cwlWorkflow.womExecutable(AcceptAllRequirements, Option(inputFile), NoIoFunctionSet, strictValidation = false) match {
       case Right(booh) => fail(s"Expected failed validation but got valid input map: $booh")
       case Left(errors) => errors.toList.toSet shouldBe Set(
         "Required workflow input 'w1' not specified",

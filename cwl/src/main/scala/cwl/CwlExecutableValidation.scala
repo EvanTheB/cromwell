@@ -21,18 +21,18 @@ object CwlExecutableValidation {
       }
     }
 
-  def buildWomExecutableCallable(callable: Checked[ExecutableCallable], inputFile: Option[String], ioFunctions: IoFunctionSet, checkForUnwantedInputs: Boolean): Checked[Executable] = {
+  def buildWomExecutableCallable(callable: Checked[ExecutableCallable], inputFile: Option[String], ioFunctions: IoFunctionSet, strictValidation: Boolean): Checked[Executable] = {
     for {
       womDefinition <- callable
-      executable <- Executable.withInputs(womDefinition, inputCoercionFunction, inputFile, ioFunctions, checkForUnwantedInputs)
+      executable <- Executable.withInputs(womDefinition, inputCoercionFunction, inputFile, ioFunctions, strictValidation)
     } yield executable
   }
 
-  def buildWomExecutable(callableTaskDefinition: Checked[TaskDefinition], inputFile: Option[String], ioFunctions: IoFunctionSet, checkForUnwantedInputs: Boolean): Checked[Executable] = {
+  def buildWomExecutable(callableTaskDefinition: Checked[TaskDefinition], inputFile: Option[String], ioFunctions: IoFunctionSet, strictValidation: Boolean): Checked[Executable] = {
     for {
       taskDefinition <- callableTaskDefinition
       executableTaskDefinition = taskDefinition.toExecutable.toEither
-      executable <- CwlExecutableValidation.buildWomExecutableCallable(executableTaskDefinition, inputFile, ioFunctions, checkForUnwantedInputs)
+      executable <- CwlExecutableValidation.buildWomExecutableCallable(executableTaskDefinition, inputFile, ioFunctions, strictValidation)
     } yield executable
   }
 }

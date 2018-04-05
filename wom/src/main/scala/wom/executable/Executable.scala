@@ -37,14 +37,14 @@ object Executable {
    */
   type ResolvedExecutableInputs = Map[OutputPort, ResolvedExecutableInput]
 
-  def withInputs(entryPoint: ExecutableCallable, inputParsingFunction: InputParsingFunction, inputFile: Option[String], ioFunctions: IoFunctionSet, checkForUnwantedInputs: Boolean): Checked[Executable] = {
-    validateExecutable(entryPoint, inputParsingFunction, parseGraphInputs(checkForUnwantedInputs), inputFile, ioFunctions)
+  def withInputs(entryPoint: ExecutableCallable, inputParsingFunction: InputParsingFunction, inputFile: Option[String], ioFunctions: IoFunctionSet, strictValidation: Boolean): Checked[Executable] = {
+    validateExecutable(entryPoint, inputParsingFunction, parseGraphInputs(strictValidation), inputFile, ioFunctions)
   }
 
   /**
     * Given the graph and the Map[String, DelayedCoercionFunction], attempts to find a value in the map for each ExternalGraphInputNode of the graph
     */
-  private def parseGraphInputs(checkUnwantedInputs: Boolean)(graph: Graph, inputCoercionMap: Map[String, DelayedCoercionFunction], ioFunctions: IoFunctionSet): ErrorOr[ResolvedExecutableInputs] = {
+  private def parseGraphInputs(strictValidation: Boolean)(graph: Graph, inputCoercionMap: Map[String, DelayedCoercionFunction], ioFunctions: IoFunctionSet): ErrorOr[ResolvedExecutableInputs] = {
     def fromInputMapping(gin: ExternalGraphInputNode): Option[ErrorOr[ResolvedExecutableInput]] = {
       inputCoercionMap
         .get(gin.nameInInputSet)
@@ -66,11 +66,11 @@ object Executable {
         (gin.singleOutputPort: OutputPort) -> fromInputMapping(gin).getOrElse(fallBack(gin))
     }).toMap.sequence
 
-    val unwantedInputs = if (checkUnwantedInputs) inputCoercionMap.keySet.diff(graph.externalInputNodes.map(_.nameInInputSet)) else Set.empty
+    val unwantedInputs = if (strictValidation) inputCoercionMap.keySet.diff(graph.externalInputNodes.map(_.nameInInputSet)) else Set.empty
 
     val wantedInputsValidation: ErrorOr[Unit] = NonEmptyList.fromList(unwantedInputs.toList) match {
       case None => ().validNel
-      case Some(unwanteds) => Invalid(unwanteds.map(unwanted => s"Unexpected input provided: $unwanted"))
+      case Some(unwanteds) => Invalid(unwanteds.map(unwanted => s"WARNING: Unexpected input provided: $unwanted"))
     }
 
     (providedInputsValidation, wantedInputsValidation) mapN { (providedInputs, _) => providedInputs }

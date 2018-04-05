@@ -92,7 +92,7 @@ class WdlDraft2LanguageFactory(override val config: Map[String, Any]) extends La
       wdlNamespace <- wdlNamespaceValidation.toEither
       _ <- validateWorkflowNameLengths(wdlNamespace)
       importedUris = evaluateImports(wdlNamespace)
-      womExecutable <- wdlNamespace.toWomExecutable(Option(source.inputsJson), ioFunctions, standardConfig.validateAllInputs)
+      womExecutable <- wdlNamespace.toWomExecutable(Option(source.inputsJson), ioFunctions, standardConfig.strictValidation)
       validatedWomNamespaceBeforeMetadata <- LanguageFactoryUtil.validateWomNamespace(womExecutable)
       _ <- checkTypes(wdlNamespace, validatedWomNamespaceBeforeMetadata.womValueInputs)
     } yield validatedWomNamespaceBeforeMetadata.copy(importedFileContent = importedUris)
@@ -127,7 +127,7 @@ class WdlDraft2LanguageFactory(override val config: Map[String, Any]) extends La
 
   override def createExecutable(womBundle: WomBundle, inputs: WorkflowJson, ioFunctions: IoFunctionSet): Checked[ValidatedWomNamespace] = for {
     _ <- standardConfig.enabledCheck
-    executable <- WdlSharedInputParsing.buildWomExecutable(womBundle, Option(inputs), ioFunctions, standardConfig.checkForUnwantedInputs)
+    executable <- WdlSharedInputParsing.buildWomExecutable(womBundle, Option(inputs), ioFunctions, standardConfig.strictValidation)
     validatedNamespace <- LanguageFactoryUtil.validateWomNamespace(executable)
   } yield validatedNamespace
 }

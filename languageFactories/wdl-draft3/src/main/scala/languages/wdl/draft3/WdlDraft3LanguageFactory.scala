@@ -53,7 +53,7 @@ class WdlDraft3LanguageFactory(override val config: Map[String, Any]) extends La
   override def createExecutable(womBundle: WomBundle, inputsJson: WorkflowJson, ioFunctions: IoFunctionSet): Checked[ValidatedWomNamespace] = {
     for {
       _ <- standardConfig.enabledCheck
-      executable <- womBundle.toWomExecutable(Option(inputsJson), ioFunctions, standardConfig.checkForUnwantedInputs)
+      executable <- womBundle.toWomExecutable(Option(inputsJson), ioFunctions, standardConfig.strictValidation)
       validated <- LanguageFactoryUtil.validateWomNamespace(executable)
     } yield validated
   }

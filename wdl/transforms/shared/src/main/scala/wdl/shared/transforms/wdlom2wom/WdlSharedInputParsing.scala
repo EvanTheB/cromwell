@@ -28,11 +28,11 @@ object WdlSharedInputParsing {
     }
   }
 
-  def buildWomExecutable(bundle: WomBundle, inputs: Option[WorkflowJson], ioFunctions: IoFunctionSet, checkForUnwantedInputs: Boolean): Checked[Executable] = {
+  def buildWomExecutable(bundle: WomBundle, inputs: Option[WorkflowJson], ioFunctions: IoFunctionSet, strictValidation: Boolean): Checked[Executable] = {
 
     for {
       ec <- bundle.toExecutableCallable
-      executable <- Executable.withInputs(ec, inputCoercionFunction, inputs, ioFunctions, checkForUnwantedInputs)
+      executable <- Executable.withInputs(ec, inputCoercionFunction, inputs, ioFunctions, strictValidation)
     } yield executable
   }
 }

@@ -157,7 +157,7 @@ class JesAsyncBackendJobExecutionActorSpec extends TestKitSuite("JesAsyncBackend
       Seq.empty[Draft2ImportResolver]).get
     val womDefinition = wdlNamespace.workflow.toWomWorkflowDefinition(isASubworkflow = false).getOrElse(fail("failed to get WomDefinition from WdlWorkflow"))
 
-    wdlNamespace.toWomExecutable(Option(Inputs.toJson.compactPrint), NoIoFunctionSet, checkForUnwantedInputs = true) match {
+    wdlNamespace.toWomExecutable(Option(Inputs.toJson.compactPrint), NoIoFunctionSet, strictValidation = true) match {
       case Right(womExecutable) =>
         val inputs = for {
           combined <- womExecutable.resolvedExecutableInputs
@@ -388,7 +388,7 @@ class JesAsyncBackendJobExecutionActorSpec extends TestKitSuite("JesAsyncBackend
     val wdlNamespace = WdlNamespaceWithWorkflow.load(YoSup.replace("[PREEMPTIBLE]", ""),
       Seq.empty[Draft2ImportResolver]).get
     val womWorkflow = wdlNamespace.workflow.toWomWorkflowDefinition(isASubworkflow = false).getOrElse(fail("failed to get WomDefinition from WdlWorkflow"))
-    wdlNamespace.toWomExecutable(Option(inputs.toJson.compactPrint), NoIoFunctionSet, checkForUnwantedInputs = true) match {
+    wdlNamespace.toWomExecutable(Option(inputs.toJson.compactPrint), NoIoFunctionSet, strictValidation = true) match {
       case Right(womExecutable) =>
         val wdlInputs = womExecutable.resolvedExecutableInputs.flatMap({case (port, v) => v.select[WomValue] map { port -> _ }})
 
@@ -462,7 +462,7 @@ class JesAsyncBackendJobExecutionActorSpec extends TestKitSuite("JesAsyncBackend
     }
 
     val womWorkflow = dockerAndDiskWdlNamespace.workflow.toWomWorkflowDefinition(isASubworkflow = false).getOrElse(fail("failed to get WomDefinition from WdlWorkflow"))
-    dockerAndDiskWdlNamespace.toWomExecutable(Option(workflowInputs.toJson.compactPrint), NoIoFunctionSet, checkForUnwantedInputs = true) match {
+    dockerAndDiskWdlNamespace.toWomExecutable(Option(workflowInputs.toJson.compactPrint), NoIoFunctionSet, strictValidation = true) match {
       case Right(womExecutable) =>
         val wdlInputs = womExecutable.resolvedExecutableInputs.flatMap({case (port, v) => v.select[WomValue] map { port -> _ }})
         val workflowDescriptor = BackendWorkflowDescriptor(
@@ -510,7 +510,7 @@ class JesAsyncBackendJobExecutionActorSpec extends TestKitSuite("JesAsyncBackend
   TestActorRef[TestableJesJobExecutionActor] = {
     val womWorkflow = WdlNamespaceWithWorkflow.load(sampleWdl.asWorkflowSources(DockerAndDiskRuntime).workflowSource,
       Seq.empty[Draft2ImportResolver]).get.workflow.toWomWorkflowDefinition(isASubworkflow = false).getOrElse(fail("failed to get WomDefinition from WdlWorkflow"))
-    dockerAndDiskWdlNamespace.toWomExecutable(Option(inputs.toJson.compactPrint), NoIoFunctionSet, checkForUnwantedInputs = true) match {
+    dockerAndDiskWdlNamespace.toWomExecutable(Option(inputs.toJson.compactPrint), NoIoFunctionSet, strictValidation = true) match {
       case Right(womExecutable) =>
         val wdlInputs = womExecutable.resolvedExecutableInputs.flatMap({case (port, v) => v.select[WomValue] map { port -> _ }})
         val workflowDescriptor = BackendWorkflowDescriptor(
@@ -577,7 +577,7 @@ class JesAsyncBackendJobExecutionActorSpec extends TestKitSuite("JesAsyncBackend
     )
 
     val womWorkflow = dockerAndDiskWdlNamespace.workflow.toWomWorkflowDefinition(isASubworkflow = false).getOrElse(fail("failed to get WomDefinition from WdlWorkflow"))
-    dockerAndDiskWdlNamespace.toWomExecutable(Option(inputs.toJson.compactPrint), NoIoFunctionSet, checkForUnwantedInputs = true) match {
+    dockerAndDiskWdlNamespace.toWomExecutable(Option(inputs.toJson.compactPrint), NoIoFunctionSet, strictValidation = true) match {
       case Right(womExecutable) =>
         val wdlInputs = womExecutable.resolvedExecutableInputs.flatMap({case (port, v) => v.select[WomValue] map { port -> _ }})
         val workflowDescriptor = BackendWorkflowDescriptor(
@@ -612,7 +612,7 @@ class JesAsyncBackendJobExecutionActorSpec extends TestKitSuite("JesAsyncBackend
     )
 
     val womWorkflow = dockerAndDiskWdlNamespace.workflow.toWomWorkflowDefinition(isASubworkflow = false).getOrElse(fail("failed to get WomDefinition from WdlWorkflow"))
-    dockerAndDiskWdlNamespace.toWomExecutable(Option(inputs.toJson.compactPrint), NoIoFunctionSet, checkForUnwantedInputs = true) match {
+    dockerAndDiskWdlNamespace.toWomExecutable(Option(inputs.toJson.compactPrint), NoIoFunctionSet, strictValidation = true) match {
       case Right(womExecutable) =>
         val wdlInputs = womExecutable.resolvedExecutableInputs.flatMap({case (port, v) => v.select[WomValue] map { port -> _ }})
         val workflowDescriptor = BackendWorkflowDescriptor(

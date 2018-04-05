@@ -208,7 +208,7 @@ object WomGraph {
         unsafeRunSync
       inputs = clt.requiredInputs
       fakedInputs = JsObject(inputs map { i => i._1 -> fakeInput(i._2) })
-      wom <- clt.womExecutable(AcceptAllRequirements, Option(fakedInputs.prettyPrint), NoIoFunctionSet, checkForUnwantedInputs = false)
+      wom <- clt.womExecutable(AcceptAllRequirements, Option(fakedInputs.prettyPrint), NoIoFunctionSet, strictValidation = false)
     } yield wom) match {
       case Right(womExecutable) => womExecutable.graph
       case Left(e) => throw new Exception(s"Can't build WOM executable from CWL: ${e.toList.mkString("\n", "\n", "\n")}")
