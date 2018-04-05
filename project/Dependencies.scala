@@ -3,9 +3,9 @@ import sbt._
 object Dependencies {
   val akkaHttpV = "10.0.10"
   val akkaV = "2.5.4"
-  val alibabaCloudCoreV = "3.2.3"
-  val alibabaCloudOssV = "2.8.3"
-  val alibabaCloudBcsV = "5.1.0"
+  val alibabaCloudCoreV = "3.6.0"
+  val alibabaCloudOssV = "3.1.0"
+  val alibabaCloudBcsV = "5.3.2"
   val ammoniteOpsV = "1.0.1"
   val apacheHttpClientV = "4.5.3"
   val apacheHttpCoreV = "4.4.6"
@@ -226,6 +226,7 @@ object Dependencies {
     "com.aliyun.oss" % "aliyun-sdk-oss" % alibabaCloudOssV
       exclude("commons-beanutils", "commons-beanutils-core")
       exclude("commons-collections", "commons-collections")
+      exclude("stax", "stax-api")
   )
 
   private val aliyunBatchComputeDependencies = List(
