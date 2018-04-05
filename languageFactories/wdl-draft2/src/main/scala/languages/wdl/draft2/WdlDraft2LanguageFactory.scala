@@ -16,7 +16,7 @@ import common.validation.Parse.Parse
 import cromwell.core._
 import cromwell.languages.util.ImportResolver.ImportResolver
 import cromwell.languages.util.LanguageFactoryUtil
-import cromwell.languages.{LanguageFactory, StandardLanguageFactoryConfig, ValidatedWomNamespace}
+import cromwell.languages.{LanguageFactory, ValidatedWomNamespace}
 import wdl.draft2.model.{Draft2ImportResolver, WdlNamespace, WdlNamespaceWithWorkflow}
 import wdl.shared.transforms.wdlom2wom.WdlSharedInputParsing
 import wdl.transforms.draft2.wdlom2wom.WdlDraft2WomBundleMakers._
