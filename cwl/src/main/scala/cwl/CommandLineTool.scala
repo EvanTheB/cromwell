@@ -394,6 +394,9 @@ object CommandLineTool {
     // after:
     //
     // CommandOutputParameter(ps-stdOut,None,None,None,None,None,Some(CommandOutputBinding(Some(Inl(Inr(Inl(ps-stdOut.txt)))),None,None)),Some(Inl(Inl(File))))
+    //
+    // This is probably still too strict (i.e. some of these fields are probably irrelevant for cache hit determination),
+    // but preferable to having false positives.
     override def cacheString: String = this.copy(id = id.substring(id.lastIndexOf('/') + 1)).toString
   }
 }

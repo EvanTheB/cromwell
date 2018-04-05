@@ -1,0 +1,17 @@
+name: cwl_caching
+testFormat: workflowsuccess
+backendsMode: "only"
+backends: [Local]
+tags: [localdockertest]
+
+files {
+  wdl: cwl_caching/cwl_caching.cwl
+  inputs: cwl_caching/cwl_caching.json
+}
+
+metadata {
+  status: Succeeded
+}
+
+workflowType: CWL
+workflowTypeVersion: v1.0
