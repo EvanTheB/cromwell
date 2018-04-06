@@ -56,7 +56,7 @@ ____    __    ____  ______   .______       __  ___  _______  __        ______   
     * Retrieves up to limit workflows which have not already been pulled into the engine and updates their state.
     * NOTE: Rows are returned with the query state, NOT the update state.
     */
-  def fetchStartableWorkflows(limit: Int, cromwellId: String, heartbeatTtl: FiniteDuration)
+  def fetchStartableWorkflows(limit: Int, cromwellId: String, heartbeatTtl: FiniteDuration, heartbeatsToWrite: Set[String])
                              (implicit ec: ExecutionContext): Future[Seq[WorkflowStoreEntry]]
 
   def writeWorkflowHeartbeat(workflowExecutionUuid: String)(implicit ec: ExecutionContext): Future[Unit]

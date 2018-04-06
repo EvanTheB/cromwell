@@ -57,9 +57,12 @@ trait WorkflowStoreSlickDatabase extends WorkflowStoreSqlDatabase {
 
   private def now: Timestamp = new Timestamp(System.currentTimeMillis())
 
-  override def fetchStartableWorkflows(limit: Int, cromwellId: String, heartbeatTtl: FiniteDuration)
+  override def fetchStartableWorkflows(limit: Int, cromwellId: String, heartbeatTtl: FiniteDuration, heartbeatsToWrite: Set[String])
                                       (implicit ec: ExecutionContext): Future[Seq[WorkflowStoreEntry]] = {
+
+    def rightNow = Option(now)
     val action = for {
+      _ <- DBIO.sequence(heartbeatsToWrite.toList.map(h => dataAccess.heartbeatForWorkflowStoreEntry(h).update(rightNow)))
       workflowStoreEntries <- dataAccess.fetchStartableWorkflows((limit.toLong, heartbeatTtl.ago)).result
       _ <- DBIO.sequence(workflowStoreEntries map updateForFetched(cromwellId))
     } yield workflowStoreEntries

@@ -435,7 +435,8 @@ class ServicesStoreSpec extends FlatSpec with Matchers with ScalaFutures with St
         queried <- dataAccess.fetchStartableWorkflows(
           limit = Int.MaxValue,
           cromwellId = "crom-f00ba4",
-          heartbeatTtl = 1.hour)
+          heartbeatTtl = 1.hour,
+          heartbeatsToWrite = Set.empty)
 
         _ = {
           val emptyEntry = queried.find(_.workflowExecutionUuid == emptyWorkflowUuid).get

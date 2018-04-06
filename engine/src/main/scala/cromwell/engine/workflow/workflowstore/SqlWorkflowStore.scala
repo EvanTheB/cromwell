@@ -43,11 +43,11 @@ case class SqlWorkflowStore(sqlDatabase: WorkflowStoreSqlDatabase) extends Workf
     * Retrieves up to n workflows which have not already been pulled into the engine and sets their pickedUp
     * flag to true
     */
-  override def fetchStartableWorkflows(n: Int, cromwellId: String, heartbeatTtl: FiniteDuration)(implicit ec: ExecutionContext): Future[List[WorkflowToStart]] = {
+  override def fetchStartableWorkflows(n: Int, cromwellId: String, heartbeatTtl: FiniteDuration, heartbeatsToWrite: Set[WorkflowId])(implicit ec: ExecutionContext): Future[List[WorkflowToStart]] = {
     import cats.instances.list._
     import cats.syntax.traverse._
     import common.validation.Validation._
-    sqlDatabase.fetchStartableWorkflows(n, cromwellId, heartbeatTtl) map {
+    sqlDatabase.fetchStartableWorkflows(n, cromwellId, heartbeatTtl, heartbeatsToWrite map { _.id.toString }) map {
       // .get on purpose here to fail the future if something went wrong
       _.toList.traverse(fromWorkflowStoreEntry).toTry.get
     }

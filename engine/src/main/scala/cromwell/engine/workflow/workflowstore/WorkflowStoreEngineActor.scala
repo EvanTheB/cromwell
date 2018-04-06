@@ -3,7 +3,7 @@ package cromwell.engine.workflow.workflowstore
 import akka.actor.{ActorLogging, ActorRef, LoggingFSM, PoisonPill, Props}
 import cats.data.NonEmptyList
 import cromwell.core.Dispatcher._
-import cromwell.core.WorkflowAborting
+import cromwell.core.{WorkflowAborting, WorkflowId}
 import cromwell.core.abort.{WorkflowAbortFailureResponse, WorkflowAbortingResponse}
 import cromwell.database.sql.tables.WorkflowStoreEntry.WorkflowStoreState
 import cromwell.database.sql.tables.WorkflowStoreEntry.WorkflowStoreState.WorkflowStoreState
@@ -69,11 +69,8 @@ final case class WorkflowStoreEngineActor private(store: WorkflowStore, serviceR
   }
 
   whenUnhandled {
-    case Event(write: WriteWorkflowHeartbeatCommand, _) =>
-      store.writeWorkflowHeartbeat(write.workflowId) recover {
-        case e => log.error(e, s"Error attempting to write workflow heartbeat for workflow ${write.workflowId}")
-      }
-      stay()
+    case Event(heartbeat: WriteWorkflowHeartbeatCommand, data) =>
+      stay() using data.copy(pendingHeartbeatIds = data.pendingHeartbeatIds + heartbeat.workflowId)
     case Event(ShutdownCommand, _) if abortAllJobsOnTerminate =>
       self ! AbortAllRunningWorkflowsCommandAndStop
       stay()
@@ -93,7 +90,7 @@ final case class WorkflowStoreEngineActor private(store: WorkflowStore, serviceR
   private def startNewWork(command: WorkflowStoreActorEngineCommand, sndr: ActorRef, nextData: WorkflowStoreActorData) = {
     val work: Future[Any] = command match {
       case FetchRunnableWorkflows(n) =>
-        newWorkflowMessage(n) map { nwm =>
+        newWorkflowMessage(n, nextData.pendingHeartbeatIds) map { nwm =>
           nwm match {
             case NewWorkflowsToStart(workflows) => log.info("{} new workflows fetched", workflows.toList.size)
             case NoNewWorkflowsToStart => log.debug("No workflows fetched")
@@ -127,7 +124,7 @@ final case class WorkflowStoreEngineActor private(store: WorkflowStore, serviceR
         Future.successful(self ! WorkDone)
     }
     addWorkCompletionHooks(command, work)
-    goto(Working) using nextData
+    goto(Working) using nextData.copy(pendingHeartbeatIds = Set.empty)
   }
 
   private def addWorkCompletionHooks[A](command: WorkflowStoreActorEngineCommand, work: Future[A]) = {
@@ -143,10 +140,10 @@ final case class WorkflowStoreEngineActor private(store: WorkflowStore, serviceR
   /**
     * Fetches at most n workflows, and builds the correct response message based on if there were any workflows or not
     */
-  private def newWorkflowMessage(maxWorkflows: Int): Future[WorkflowStoreEngineActorResponse] = {
+  private def newWorkflowMessage(maxWorkflows: Int, heartbeatsToWrite: Set[WorkflowId]): Future[WorkflowStoreEngineActorResponse] = {
     def fetchStartableWorkflowsIfNeeded(maxWorkflowsInner: Int) = {
       if (maxWorkflows > 0) {
-        store.fetchStartableWorkflows(maxWorkflowsInner, cromwellId, heartbeatTtl)
+        store.fetchStartableWorkflows(maxWorkflowsInner, cromwellId, heartbeatTtl, heartbeatsToWrite)
       } else {
         Future.successful(List.empty[WorkflowToStart])
       }
@@ -176,7 +173,7 @@ object WorkflowStoreEngineActor {
 
   final case class WorkflowStoreActorCommandWithSender(command: WorkflowStoreActorEngineCommand, sender: ActorRef)
 
-  final case class WorkflowStoreActorData(currentOperation: Option[WorkflowStoreActorCommandWithSender], pendingOperations: List[WorkflowStoreActorCommandWithSender]) {
+  final case class WorkflowStoreActorData(currentOperation: Option[WorkflowStoreActorCommandWithSender], pendingOperations: List[WorkflowStoreActorCommandWithSender], pendingHeartbeatIds: Set[WorkflowId] = Set.empty) {
     def withCurrentCommand(command: WorkflowStoreActorEngineCommand, sender: ActorRef) = this.copy(currentOperation = Option(WorkflowStoreActorCommandWithSender(command, sender)))
     def withPendingCommand(newCommand: WorkflowStoreActorEngineCommand, sender: ActorRef) = this.copy(pendingOperations = this.pendingOperations :+ WorkflowStoreActorCommandWithSender(newCommand, sender))
     def pop = {
