@@ -21,6 +21,7 @@ final case class WorkflowStoreActor private(store: WorkflowStore, serviceRegistr
     case ShutdownCommand => waitForActorsAndShutdown(NonEmptyList.of(workflowStoreSubmitActor, workflowStoreEngineActor))
     case cmd: WorkflowStoreActorSubmitCommand => workflowStoreSubmitActor forward cmd
     case cmd: WorkflowStoreActorEngineCommand => workflowStoreEngineActor forward cmd
+    case cmd: WriteWorkflowHeartbeatCommand => workflowStoreEngineActor forward cmd
   }
 }
 
